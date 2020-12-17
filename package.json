@@ -1,0 +1,162 @@
+{
+	"name": "read-book-status-bar",
+	"displayName": "状态栏读书",
+	"description": "状态栏读书,浑水摸鱼",
+	"keywords": [
+		"read",
+		"book",
+		"阅读",
+		"小说"
+	],
+	"icon": "logo.png",
+	"version": "0.0.20",
+	"publisher": "read-book",
+	"engines": {
+		"HBuilderX": "^2.7.0"
+	},
+	"main": "./extension",
+	"activationEvents": [
+		"*"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "read-book-status-bar.search",
+				"title": "状态栏读书：搜索"
+			},
+			{
+				"command": "read-book-status-bar.list",
+				"title": "状态栏读书：目录"
+			},
+			{
+				"command": "read-book-status-bar.pre",
+				"title": "状态栏读书：上一章"
+			},
+			{
+				"command": "read-book-status-bar.next",
+				"title": "状态栏读书：下一章"
+			},
+			{
+				"command": "read-book-status-bar.up",
+				"title": "状态栏读书：上一行"
+			},
+			{
+				"command": "read-book-status-bar.down",
+				"title": "状态栏读书：下一行"
+			},
+			{
+				"command": "read-book-status-bar.stop",
+				"title": "状态栏读书：停止"
+			},
+			{
+				"command": "read-book-status-bar.bosskey",
+				"title": "状态栏读书：老板键"
+			},
+			{
+				"command": "read-book-status-bar.import",
+				"title": "状态栏读书：导入"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "状态栏读书",
+			"properties": {
+				"read-book-status-bar.autoRead": {
+					"type": "boolean",
+					"default": false,
+					"description": "启动时自动阅读上次记录"
+				},
+				"read-book-status-bar.autoReadRow": {
+					"type": "boolean",
+					"default": true,
+					"description": "是否自动阅读下一行"
+				},
+				"read-book-status-bar.navIndex": {
+					"type": "number",
+					"default": 0,
+					"description": "阅读到第几章"
+				},
+				"read-book-status-bar.pageIndex": {
+					"type": "number",
+					"default": 0,
+					"description": "阅读到第几行"
+				},
+				"read-book-status-bar.type": {
+					"type": "string",
+					"enum": [
+						"biquge",
+						"qidian",
+						"zongheng"
+					],
+					"default": "biquge",
+					"enumDescriptions": [
+						"本地文件[txt]",
+						"笔趣阁",
+						"起点中文网",
+						"纵横中文网"
+					],
+					"description": "阅读平台"
+				},
+				"read-book-status-bar.speed": {
+					"type": "number",
+					"default": 5000,
+					"description": "自动阅读速度默认5s"
+				},
+				"read-book-status-bar.name": {
+					"type": "string",
+					"default": "",
+					"description": "当前阅读书籍名称"
+				},
+				"read-book-status-bar.link": {
+					"type": "string",
+					"default": "",
+					"description": "当前阅读书籍url"
+				},
+				"read-book-status-bar.bosstext": {
+					"type": "string",
+					"default": "",
+					"description": "老板键显示文字"
+				},
+				"read-book-status-bar.rowLength": {
+					"type": "number",
+					"default": 40,
+					"description": "每行最多显示字数默认40，必须大于20,否则阅读时间会自动减半"
+				}
+			}
+		},
+		"menus": {
+			"menubar/tool": [
+				{
+					"id": "read-book-status-bar",
+					"title": "状态栏阅读",
+					"group": "read-book-status-bar"
+				},
+				{
+					"command": "read-book-status-bar.search",
+					"group": "read-book-status-bar@2"
+				},
+				{
+					"command": "read-book-status-bar.list",
+					"group": "read-book-status-bar@3"
+				},
+				{
+					"command": "read-book-status-bar.pre",
+					"group": "read-book-status-bar@4"
+				},
+				{
+					"command": "read-book-status-bar.next",
+					"group": "read-book-status-bar@5"
+				},
+				{
+					"command": "read-book-status-bar.stop",
+					"group": "read-book-status-bar@6"
+				}
+			]
+		}
+	},
+	"dependencies": {
+		"axios": "^0.20.0",
+		"cheerio": "^1.0.0-rc.3",
+		"iconv-lite": "^0.6.2"
+	}
+}
