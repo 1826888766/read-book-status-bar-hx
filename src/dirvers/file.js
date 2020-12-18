@@ -30,7 +30,7 @@ class File{
     this._import = new Import({ rule: config.rule });
     await this._import.read(item.link);
     this.save(item);
-    return this._import.navList;
+    return this.list(item, config);
   }
 
   async read(item) {

@@ -308,10 +308,16 @@ class Log {
 	
 	async import(file) {
 	    this.selectNav = true;
+		file = file.replace(/\\/g,"\\\\")
 	    await this.updateConfig('name',  path.basename(file));
 		await this.updateConfig('link', file);
+		await this.updateConfig('type', "file");
 		await this.updateConfig('navIndex',0);
-	    this.list();
+		this.active = {
+			label:path.basename(file),
+			description:file
+		}
+		this.list();
 	}
 }
 
