@@ -1,5 +1,5 @@
 {
-	"name": "read-book-status-bar",
+	"name": "read-book-status-bar-hx",
 	"displayName": "状态栏读书",
 	"description": "状态栏读书,浑水摸鱼",
 	"keywords": [
@@ -9,7 +9,7 @@
 		"小说"
 	],
 	"icon": "logo.png",
-	"version": "0.0.20",
+	"version": "0.0.21",
 	"publisher": "read-book",
 	"engines": {
 		"HBuilderX": "^2.7.0"
