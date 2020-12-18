@@ -72,18 +72,14 @@
 					"description": "是否自动阅读下一行"
 				},
 				"read-book-status-bar.navIndex": {
-					"type": "number",
+					"type": "string",
 					"default": 0,
 					"description": "阅读到第几章"
-				},
-				"read-book-status-bar.pageIndex": {
-					"type": "number",
-					"default": 0,
-					"description": "阅读到第几行"
 				},
 				"read-book-status-bar.type": {
 					"type": "string",
 					"enum": [
+						"file",
 						"biquge",
 						"qidian",
 						"zongheng"
@@ -98,7 +94,7 @@
 					"description": "阅读平台"
 				},
 				"read-book-status-bar.speed": {
-					"type": "number",
+					"type": "string",
 					"default": 5000,
 					"description": "自动阅读速度默认5s"
 				},
@@ -118,7 +114,7 @@
 					"description": "老板键显示文字"
 				},
 				"read-book-status-bar.rowLength": {
-					"type": "number",
+					"type": "string",
 					"default": 40,
 					"description": "每行最多显示字数默认40，必须大于20,否则阅读时间会自动减半"
 				}
@@ -150,6 +146,10 @@
 				{
 					"command": "read-book-status-bar.stop",
 					"group": "read-book-status-bar@6"
+				},
+				{
+					"command": "read-book-status-bar.import",
+					"group": "read-book-status-bar@1"
 				}
 			]
 		}
@@ -157,6 +157,7 @@
 	"dependencies": {
 		"axios": "^0.20.0",
 		"cheerio": "^1.0.0-rc.3",
-		"iconv-lite": "^0.6.2"
+		"iconv-lite": "^0.6.2",
+		"nedb": "^1.8.0"
 	}
 }

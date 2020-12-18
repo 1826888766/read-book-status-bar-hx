@@ -1,5 +1,6 @@
 const request = require("./util/request.js");
 const hx = require("hbuilderx");
+const path = require("path");
 class Log {
 	constructor(config) {
 		this.config = config;
@@ -35,7 +36,7 @@ class Log {
 	}
 
 	setConfig(config) {
-		if (this.config && this.config.get("type") !== config.get("type")) {
+		if (this.config && this.config.get("type") != config.get("type")) {
 		    this.config = config;
 		    this.bookList = [];
 		    this.navList = [];
@@ -49,10 +50,6 @@ class Log {
 		        limits: 10,
 		    };
 		    this.search(this.config.get("name"));
-		
-		} else {
-		    this.config = config;
-		
 		}
 	}
 
@@ -61,11 +58,9 @@ class Log {
 	 * @param key 
 	 * @param value 
 	 */
-	updateConfig(key, value) {
-		this.config
-			.update(key, value)
-			.then(() => {
-			});
+	async updateConfig(key, value) {
+		await this.config
+			.update(key, value.toString())
 	}
 	showBookList() {
 		hx.window.showQuickPick(this.bookList, {
@@ -78,7 +73,7 @@ class Log {
 			this.list()
 		})
 	}
-	showNavList() {
+	 showNavList() {
 		hx.window.showQuickPick(this.navList, {
 			placeHolder: "请选择书籍目录"
 		}).then(result => {
@@ -86,7 +81,7 @@ class Log {
 				return;
 			}
 			this.activeNav = result
-			this.updateConfig("navIndex", result.index)
+			this.navIndex = result.index
 			this.read()
 		})
 	}
@@ -95,8 +90,8 @@ class Log {
 		if(!this.active.label){
 			return hx.window.showErrorMessage('请先选择书籍');
 		}
-		this.updateConfig("name", this.active.label);
-		this.updateConfig("link", this.active.description);
+		await this.updateConfig("name", this.active.label);
+		await this.updateConfig("link", this.active.description);
 		this.navList = await request.setConfig(this.config).setDirvers(this.config.get("type")).list({
 			link: this.active.description,
 			title: this.active.label
@@ -113,7 +108,15 @@ class Log {
 		this.showNavList()
 	}
 
-	async read() {
+	async read(isInit = false) {
+		if (!this.activeNav) {
+		    this.write("请搜索书籍");
+		    return;
+		}
+		if (!isInit) {
+		    this.isStop = false;
+		}
+		await this.updateConfig("navIndex", this.navIndex)
 		var content = await request.setConfig(this.config).setDirvers(this.config.get("type")).read({
 			link: this.activeNav.description,
 			title: this.activeNav.label
@@ -131,10 +134,10 @@ class Log {
             window.showWarningMessage("已是第一章");
             return;
         }
-        this.activeNav = this.navList[this.navIndex];
 
         this.pageIndex = 0;
         this.navIndex -= 1;
+		this.activeNav = this.navList[this.navIndex];
         this.read();
     }
     /**
@@ -145,10 +148,10 @@ class Log {
             window.showWarningMessage("已是最后一章");
             return;
         }
-        this.activeNav = this.navList[this.navIndex];
 
         this.pageIndex = 0;
         this.navIndex += 1;
+		this.activeNav = this.navList[this.navIndex];
         this.read();
     }
     /**
@@ -301,6 +304,14 @@ class Log {
 	    } else {
 	        this.write("请搜索书籍");
 	    }
+	}
+	
+	async import(file) {
+	    this.selectNav = true;
+	    await this.updateConfig('name',  path.basename(file));
+		await this.updateConfig('link', file);
+		await this.updateConfig('navIndex',0);
+	    this.list();
 	}
 }
 

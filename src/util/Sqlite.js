@@ -1,127 +1,151 @@
-var level = require('level')
+var Datastore = require('nedb');
 const path = require("path");
-class Sqlite {
-    
-    constructor() {
-		this.filename = "bookshelf.db";
-		this. whereOpt = [];
-		this. fieldOpt = [];
-		this. tableOpt = "";
-		this.db = level(this.filename)
-       this.content();
-    }
 
-	async content(){
-		this.db = await new sqlite.Database(this.filename, function (e) {
-		    if (e) {
-				console.log(e);
-		        // throw e;
-		    }
+class Sqlite {
+
+	constructor() {
+		this.filename = {
+			"book": "bookshelf_book.db",
+			"book_nav": "bookshelf_nav.db"
+		};
+		this.whereOpt = {};
+		this.fieldOpt = {};
+		this.tableOpt = "";
+		this.db = {};
+		this.db.book = new Datastore({
+			filename: this.filename.book,
+			autoload: true
 		});
-		console.log(this.db)
-		this.db.get("SELECT * FROM book", (e) => {
-		    if (e) {
-		        this.db.run("CREATE TABLE book(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,type TEXT,url TEXT,nav_index INT);");
-		        this.db.run("CREATE TABLE book_nav(id INTEGER PRIMARY KEY AUTOINCREMENT,book_id INT,url TEXT, title INT,content TEXT);");
-		    }
+		this.db.book_nav = new Datastore({
+			filename: this.filename.book_nav,
+			autoload: true
 		});
 	}
 
-    run(sql) {
-        this.db.run(sql, function (e) {
-            if (e) {
-                console.log(e);
-                // throw Error(e);
-            }
-        });
-    }
-    table(name) {
-        this.tableOpt = name;
-        this.whereOpt = [];
-        this.fieldOpt = [];
-        return this;
-    }
+	table(name) {
+		this.tableOpt = name;
+		this.whereOpt = {};
+		this.sortOpt = {};
+		this.fieldOpt = {};
+		return this;
+	}
 
-    create(data) {
-        var field = Object.keys(data);
-        var value = [];
-        Object.values(data).forEach((item) => {
-            if (typeof item === "number") {
-                value.push(`${item}`);
-            } else {
-                value.push(`"${item}"`);
-            }
-        });
+	create(data) {
+		return this.db[this.tableOpt].insert(data, function(err, newDoc) {
+			console.log("err:", err);
+			console.log("newDoc:", newDoc);
+		});
+	}
 
-        var sql = `INSERT INTO ${this.tableOpt}(${field}) VALUEs(${value})`;
-        return this.run(sql);
-    }
+	delete() {
+		this.db[this.tableOpt].remove(this.whereOpt, {
+			multi: true
+		}, (err, ret) => {
+			console.log("err:", err);
+		});
+	}
 
-    delete() {
+	update() {
 
-    }
+	}
 
-    update() {
+	sort(key, value) {
+		if (value == 1 || value == "asc") {
+			this.sortOpt[key] = 1
+		} else {
+			this.sortOpt[key] = -1
+		}
+		return this;
+	}
 
-    }
-    field(name) {
-        if (Array.isArray(name)) {
-            this.fieldOpt=  this.fieldOpt.concat(name);
-        } else if (typeof name === "string") {
-            this.fieldOpt = this.fieldOpt.concat(name.split(','));
-        }
-        return this;
-    }
+	field(name) {
+		if (typeof name === "string") {
+			name = name.split(',')
+		}
+		for (var key in name) {
+			if (name[key].split(' as ').length == 2) {
+				this.fieldOpt[name[key]] = name[key].split(' as ')[1]
+			} else {
+				this.fieldOpt[name[key]] = 1
+			}
+		}
+		return this;
+	}
 
-    where(field, op, value = "") {
-        if (!value) {
-            value = op;
-            op = "=";
-        }
-        if (typeof value === "number") {
-            this.whereOpt.push(`${field} ${op} ${value}`);
-        } else {
-            this.whereOpt.push(`${field} ${op} "${value}"`);
-        }
-        return this;
-    }
-    find() {
-        return new Promise((resolve, reject) => {
-            var field = this.fieldOpt.join(",") || "*";
-            var where = this.whereOpt.join(" AND ");
-            var sql = `SELECT ${field} FROM ${this.tableOpt} WHERE ${where};`;
-            var data = this.db.get(sql, function (err, row) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row);
-                }
-            });
-        });
-    }
+	where(field, op, value = "") {
+		if (!value) {
+			value = op;
+			op = "=";
+		}
+		if (op == "=") {
 
-    select() {
-        return new Promise((resolve, reject) => {
-            var field = this.fieldOpt.join(",") || "*";
-            var where = this.whereOpt.join(" AND ");
-            if(!this.tableOpt){
-                return false;
-            }
-            var sql = `SELECT ${field} FROM ${this.tableOpt} WHERE ${where};`;
-             this.db.all(sql, function (err, row) {
-                 console.log(sql);
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row);
-                }
-            });
-        });
+		} else if (op == ">") {
+			value = {
+				$gt: value
+			}
+		} else if (op == ">=") {
+			value = {
+				$gte: value
+			}
+		} else if (op == "<") {
+			value = {
+				$lt: value
+			}
+		} else if (op == "<=") {
+			value = {
+				$lte: value
+			}
+		} else if (op == "in") {
+			value = {
+				$in: value
+			}
+		} else if (op == "!=" || op == "<>") {
+			value = {
+				$ne: value
+			}
+		} else if (op == "has") {
+			value = {
+				$exists: value
+			}
+		} else if (typeof op == "RegExp") {
+			value = {
+				$regex: value
+			}
+		} else if (["$regex", "$exists", "$ne", "$in", "$lte", "$lt", "$gte", "$gt"].search(op)) {
+			var new_value = {}
+			new_value[op] = value
+			value = new_value;
+		} else {
+			throw new Error("不支持的表达式");
+		}
+		this.whereOpt[field] = value
+		return this;
+	}
+	find() {
+		return new Promise((resolve, reject) => {
+			this.db[this.tableOpt].findOne(this.whereOpt, this.fieldOpt, function(err, row) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(row);
+				}
+			})
+		});
+	}
 
-    }
+	select() {
+		return new Promise((resolve, reject) => {
+			this.db[this.tableOpt].find(this.whereOpt, this.fieldOpt).sort(this.sortOpt).exec(function(err, row) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(row);
+				}
+			});
+		});
+
+	}
 
 }
 
-module.exports = {
-	Sqlite
-}
+module.exports = Sqlite

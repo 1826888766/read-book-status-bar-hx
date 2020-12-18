@@ -63,6 +63,4 @@ class Import {
 
 }
 
-module.exports = {
-	Import
-}
+module.exports = Import
