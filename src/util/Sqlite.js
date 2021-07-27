@@ -32,8 +32,10 @@ class Sqlite {
 
 	create(data) {
 		return this.db[this.tableOpt].insert(data, function(err, newDoc) {
-			console.log("err:", err);
-			console.log("newDoc:", newDoc);
+			if(err){
+				console.log("err:", err);
+				console.log("newDoc:", newDoc);
+			}
 		});
 	}
 

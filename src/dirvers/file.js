@@ -45,7 +45,7 @@ class File{
   async search(name) {
     return [];
   }
-  
+  *
   clear(){
 	  this.sqlite.table('book').delete();
 	  this.sqlite.table('book_nav').delete();

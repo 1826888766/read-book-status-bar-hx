@@ -41,7 +41,7 @@ class BiQuGe {
     this.name = gbk.encodeURIComponent(name);
 
     let url =
-      "https://www.xbiquge.cc/modules/article/search.php?searchkey=" +
+      "https://www.xbiquge.so/modules/article/search.php?searchkey=" +
       this.name;
     const $ = await get(url).catch((err) => {
       console.log(err);
